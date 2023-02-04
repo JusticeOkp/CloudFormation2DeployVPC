@@ -23,15 +23,16 @@ Parameters:
     Default: 10.192.20.0/24
 
 Resources:
+
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Ref VpcCIDR
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: !Ref EnvironmentName
+    CidrBlock: !Ref VpcCIDR
+    EnableDnsSupport: true
+    EnableDnsHostnames: true
+  Tags:
+       - Key: Name
+         Value: !Ref EnvironmentName
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -68,6 +69,18 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+          
+  
+  WebServerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Web Server Traffic
+      SecurityGroupIngress:
+    - IpProtocol: tcp
+      FromPort: '80'
+      ToPort: '80'
+      CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
 
   NatGateway1EIP:
     Type: AWS::EC2::EIP
@@ -123,6 +136,23 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet1
+EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0e1d30f2c40c4c701
+      InstanceType: t2.micro
+      SubnetId: !Ref PrivateSubnet1
+SecurityGroupIds:
+    - !Ref WebServerSecurityGroup 
+       Tags:
+    - Key: Name
+      Value: VPC Blog Post EC2
+      UserData:
+      Fn::Base64: |
+      #!/bin/bash
+      yum install httpd -y
+      service httpd start
+        echo "<html><body><h1>Hello Justice!<h1></body></html>" > /var/www/html/index.html
 
 Outputs:
   VPC:
