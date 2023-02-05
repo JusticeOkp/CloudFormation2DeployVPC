@@ -1,6 +1,5 @@
 Description:  This template deploys a VPC, with a  of public and private subnets to an Availability Zones. It deploys an internet gateway, with a default
-  route on the public subnets. It deploys a of NAT gateways,
-  and default routes for them in the private subnets.
+  route on the public subnets. It deploys a of NAT gateways, and default routes for them in the private subnets.
 
 Parameters:
   EnvironmentName:
